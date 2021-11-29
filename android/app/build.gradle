@@ -1,0 +1,87 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+def MIN_IAP_SDK_VERSION = '1.4.0'
+def COMPILE_SDK_VERSION = 28
+def TARGET_SDK_VERSION = 28
+
+android {
+    def sqipCompileSdkVersion = rootProject.hasProperty('sqipCompileSdkVersion') ? rootProject.sqipCompileSdkVersion : COMPILE_SDK_VERSION
+    def sqipTargetSdkVersion = rootProject.hasProperty('sqipTargetSdkVersion') ? rootProject.sqipTargetSdkVersion : TARGET_SDK_VERSION
+    compileSdkVersion 28
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.example.Mecca"
+        minSdkVersion 21
+        targetSdkVersion 28
+        multiDexEnabled true
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    def sqipVersion = rootProject.hasProperty('sqipVersion') ? rootProject.sqipVersion : MIN_IAP_SDK_VERSION
+    implementation "com.squareup.sdk.in-app-payments:card-entry:$sqipVersion"
+    implementation "com.squareup.sdk.in-app-payments:google-pay:$sqipVersion"
+    implementation 'com.google.android.gms:play-services-wallet:16.0.1'
+    implementation "com.squareup.sdk.in-app-payments:buyer-verification:$sqipVersion"
+    def multidex_version = "2.0.1" 
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'com.google.firebase:firebase-core:17.0.0'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation platform('com.google.firebase:firebase-bom:26.3.0')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.multidex:multidex:$multidex_version' 
+    implementation "androidx.multidex:multidex:2.0.1"
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}

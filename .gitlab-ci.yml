@@ -1,0 +1,20 @@
+variables:
+  IOS_XCODE_PROJECT_NAME: "<YOUR_XCODE_PROJECT_NAME>"
+  FLAVOR: "production"
+
+stages:
+  - archive
+
+android:debug:
+  stage: archive
+  before_script:
+    - gem install fastlane
+    - flutter packages get
+    - flutter clean
+  script:
+    - flutter doctor --flavor ${FLAVOR} --android-licenses
+    - flutter build apk --debug
+  artifacts:
+    paths:
+      - "**/**/**/**/**/**/*.apk"
+    expire_in: 1 day
